@@ -14,21 +14,25 @@ fn main() {
     acceptor.set_verify(SslVerifyMode::PEER | SslVerifyMode::FAIL_IF_NO_PEER_CERT);
 
     acceptor.set_ca_file("Vector_CA.crt").unwrap();
-    acceptor.set_verify_callback(SslVerifyMode::PEER, |res, cert| {
-        println!(
-            "{}",
-            std::str::from_utf8(&cert.current_cert().unwrap().to_text().unwrap()).unwrap()
-        );
-        dbg!(cert.current_cert().unwrap().subject_name());
-        dbg!(cert.current_cert().unwrap().issuer_name());
-        res
-    });
+    acceptor.set_verify_callback(
+        SslVerifyMode::PEER | SslVerifyMode::FAIL_IF_NO_PEER_CERT,
+        |res, cert| {
+            println!(
+                "{}",
+                std::str::from_utf8(&cert.current_cert().unwrap().to_text().unwrap()).unwrap()
+            );
+            dbg!(cert.current_cert().unwrap().subject_name());
+            dbg!(cert.current_cert().unwrap().issuer_name());
+            res
+        },
+    );
     acceptor.check_private_key().unwrap();
     let acceptor = Arc::new(acceptor.build());
 
     let listener = TcpListener::bind("0.0.0.0:9000").unwrap();
 
     fn handle_client(stream: SslStream<TcpStream>) {
+        dbg!("handling client");
         // ...
     }
 
